@@ -1,0 +1,5 @@
+(executable
+ (name bench)
+ (modules benchmarks bench)
+ (preprocess (pps ppx_fields_conv ppx_sexp_conv))
+ (libraries digestif.c bechamel bechamel.js mirage-crypto cmdliner))

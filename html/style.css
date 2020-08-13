@@ -1,0 +1,69 @@
+body{
+    width: 100%;
+    height: 100%;
+    font-family:Helvetica Neue,metric,sans-serif;
+    text-rendering: optimizeLegibility;
+}
+
+.center{
+    width: 600px;
+    margin: auto;
+}
+
+text{
+    font-family: metric,sans-serif;
+}
+
+svg {
+    overflow: hidden;
+    margin: auto
+}
+
+.axis line, .axis path{
+    stroke: #292F36;
+    stroke-width:1px;
+}
+
+.axisTitle, .axis text{
+    fill: #292F36;
+    font-size:12px;
+}
+
+.background {
+    fill: #F3F5F6;
+    stroke: #292F36;
+}
+
+.axisTitle, .chartTitle {
+    text-anchor: middle
+}
+
+.ytitle {
+    text-anchor: middle;
+    transform: rotate(90deg)
+}
+
+.regLine {
+    stroke: #F06449;
+    stroke-width:2px;
+    opacity:0.7 }
+
+.circle {
+    fill: #4ECDC4;
+    stroke: #292f36;
+    stroke-width:0.3px
+}
+
+table {
+    border: 1px solid #292F36
+}
+
+tr {
+    fill: #292f36;
+    font-size:10px
+}
+
+.bar {
+    fill: #4ECDC4;
+    stroke:#292f36;
+}

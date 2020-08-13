@@ -1,0 +1,11 @@
+(executable
+ (name bechamel_html)
+ (modules bechamel_html js_file)
+ (libraries bechamel))
+
+(rule
+ (with-stdout-to js_file.ml
+  (progn
+   (echo "let data = {js_file|")
+   (cat ../html/without_data.js)
+   (echo "|js_file}"))))
