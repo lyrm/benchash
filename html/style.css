@@ -6,8 +6,8 @@ body{
 }
 
 .center{
-    width: 600px;
-    margin: auto;
+    width: 500px;
+    margin:auto
 }
 
 text{
@@ -66,4 +66,62 @@ tr {
 .bar {
     fill: #4ECDC4;
     stroke:#292f36;
+}
+
+.flex {
+    display: flex;
+}
+
+.slidecontainer{
+    width: 50%;
+}
+
+/* The slider itself */
+.slider {
+  -moz-appearance: none;  /* Override default CSS styles */
+  appearance: none;
+  width: 100%; /* Full-width */
+  height: 15px;
+  border-radius: 5px;
+  background: #F3F5F6; /* Grey background */
+  outline: none; /* Remove outline */
+  opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
+  -moz-transition: .2s; /* 0.2 seconds transition on hover */
+  transition: opacity .2s;
+}
+
+/* Mouse-over effects */
+.slider:hover {
+  opacity: 1; /* Fully shown on mouse-over */
+}
+
+/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+.slider::-moz-slider-thumb {
+  -moz-appearance: none; /* Override default look */
+  appearance: none;
+  width: 25px; /* Set a specific slider handle width */
+  height: 25px; /* Slider handle height */
+  background: #4CAF50; /* Green background */
+  cursor: pointer; /* Cursor on hover */
+}
+
+.slider::-moz-range-thumb {
+  width: 25px; /* Set a specific slider handle width */
+  height: 25px; /* Slider handle height */
+  background: #4CAF50; /* Green background */
+  cursor: pointer; /* Cursor on hover */
+}
+
+.row {
+    display: flex;
+}
+
+
+.column, .c1, .c2 {
+    margin: auto;
+}
+
+.radio {
+    margin: auto;
+    width : 200px;
 }
