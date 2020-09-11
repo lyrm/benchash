@@ -21,7 +21,7 @@ const wsvg = 500;
 const hsvg = 400;
 const wslider = 200;
 const hslider = 50;
-const margin = {left:50,right:50,top:50,bottom:50};
+const margin = {left:50,right:50,top:20,bottom:50};
 const dotSize = 1.5;
 const innerW = wsvg-(margin.left+margin.right);
 const innerH = hsvg-(margin.top+margin.bottom);
@@ -29,6 +29,7 @@ const innerH = hsvg-(margin.top+margin.bottom);
 const marginbar = {left:150,right:150,top:50,bottom:50};
 const wbar = 2*wsvg-100;
 const innerWbar = wbar-(marginbar.left+marginbar.right);
+
 
 function plot_summarize_bar_graph(container, inputs) {
 
@@ -61,12 +62,6 @@ function plot_summarize_bar_graph(container, inputs) {
   	.attr("width", innerWbar)
   	.attr("height", innerHbar)
   	.attr("class", "background axis");
-    // graph title
-    bargraph.append("text")
-  	.attr("class", "chartTitle")
-  	.attr("x", wbar/2)
-  	.attr("y", marginbar.top-10)
-  	.text("Benchmarks summary");
     // x Axis
     bargraph.append("g")
 	.attr("transform","translate("+marginbar.left+","+(hbar-marginbar.bottom)+")")
@@ -83,6 +78,7 @@ function plot_summarize_bar_graph(container, inputs) {
 	.attr("transform","translate("+marginbar.left+","+marginbar.bottom+")")
 	.attr("class", "axis")
 	.call(ybAxis);
+
     // Bargraph
     bargraph.append("g")
 	.attr("transform","translate("+marginbar.left+","+marginbar.top+")")
@@ -94,7 +90,22 @@ function plot_summarize_bar_graph(container, inputs) {
 	.attr("y", serie => yb(serie.name))
 	.attr("height", yb.bandwidth)
 	.attr("x", serie => 0)
-	.attr("width", serie => xb(serie.result.estimate));
+	.attr("width", serie => xb(serie.result.estimate))
+	.attr("fill", "#4ECDC4")
+	.on("mouseover", function (serie) {
+	    // Specify where to put label of text
+	    bargraph.append("text")
+		.attr("class", "axisTitle")
+		.attr("id", "tt")
+		.attr("x", wbar-200)
+		.attr("y", marginbar.top-10)
+		.text("Value: "+d3.format(".4s")(serie.result.estimate));
+	})
+        .on("mouseout", function (serie) {
+	    // Select text by id and then remove
+	    d3.selectAll("#tt").transition().duration("50").remove();
+	});
+
 };
 
 // [histrogram (data, barwidth, min, max)] computes histogram
@@ -137,6 +148,15 @@ function plot_histogram(container, data, barwidth, xscale, yscale) {
     const min = d3.min(data),
 	  max = d3.max(data);
     const hist = histogram(data, barwidth, min, max);
+    const sample_nb = data.length;
+
+    const print_value = function (v) {
+	container.append("text")
+	    .attr("class", "axisTitle")
+	    .attr("id", "tt2")
+	    .attr("x", wsvg-170)
+	    .attr("y", margin.top-20)
+	    .text("Value: "+d3.format("d")(v)+" / "+d3.format("d")(sample_nb));};
 
     const rects =
 	  container
@@ -149,7 +169,9 @@ function plot_histogram(container, data, barwidth, xscale, yscale) {
 	.attr("x", (v, i) => xscale(i*barwidth+min))
 	.attr("width", (v, i) => xscale(barwidth)-xscale(0))
 	.attr("y", (v, i) => yscale(v))
-	.attr("height", (v, i) => innerH-yscale(v));
+	.attr("height", (v, i) => innerH-yscale(v))
+	.on("mouseover", print_value)
+        .on("mouseout", () => d3.selectAll("#tt2").transition().duration("50").remove());
 
     function update_hist(nbarwidth) {
 	//compute new histograph values
@@ -167,13 +189,15 @@ function plot_histogram(container, data, barwidth, xscale, yscale) {
 	    .attr("x", (v, i) => xscale(i*nbarwidth+min))
 	    .attr("width", (v, i) => xscale(nbarwidth)-xscale(0))
 	    .attr("y", (v, i) => yscale(v))
-	    .attr("height", (v, i) => innerH-yscale(v));
+	    .attr("height", (v, i) => innerH-yscale(v))
+	    .on("mouseover", print_value)
+            .on("mouseout", () => d3.selectAll("#tt2").transition().duration("50").remove());
     }
     return update_hist;
 };
 
-// [kernelDensityEstimation(data, bandwith] returns the function x -> kde(x) for [data]
-// The kernel function used is a gaussian.
+// [kernelDensityEstimation(data, bandwith] returns the function x -> kde(x)
+//    for [data]. The kernel function used is a gaussian.
 const SQRT_2PI = Math.sqrt(2 * Math.PI);
 function kernelDensityEstimation(X, bandwidth) {
     //gaussian constante
@@ -263,115 +287,220 @@ function render(inputs) {
 		});}
     );
 
+    // Layout in a grid
+    //              c1:        c2:
+    //
+    // r1:            *title*
+    //           ___________________
+    // r2:      |   summarize bar   |
+    //          |___________________|
+    //
+    // r3:           *title-1*
+    //
+    // r4:        *title*   *radio*
+    //           _______     _______
+    // r5:      | lr-1  |   | kde-1 |
+    //          |_______|   |_______|
+    //
+    // r6:      *infos-1*   *slider-1*
+    // ..
+    // r(4i+3):       *title-i*
+    //
+    // r(4i+4):  *title*     *radio*
+    //           _______     _______
+    // r(4i+5): | lr-i  |   | kde-i |
+    //          |_______|   |_______|
+    //
+    // r(4i+6): *infos-i*   *slider-i*
+    //
+    // etc ..
+
+      const main =
+	  d3.select("body")
+	  .append("div")
+	    .attr("class", "wrapper")
+	    .attr("id", "main");
+
     // ************************************************ //
     //              Summarize bar graph                 //
     // ************************************************ //
-    let bar_container = d3.select("body")
+
+    // Title
+    main.append("div")
+   	  .style("grid-row", "1")
+      	  .style("grid-column", "1 / 3")
+  	  .attr("class", "summarizeTitle")
+  	.text("Benchmarks summary");
+
+    // Bar graph
+    let bar_container = main
 	.append("div")
-	.attr("class", "center")
-	.attr("id", "bar");
+   	  .style("grid-row", "2")
+      	  .style("grid-column", "1 / 3")
+	  .attr("id", "bar");
     plot_summarize_bar_graph(bar_container, inputs);
 
-    // Two columns layouts :
-    // - left for linear regressions
-    // - right for hist/kde curves
-    const main =
-	  d3.select("body")
-	  .append("div")
-	    .attr("class", "center")
-	    .attr("id", "main");
 
-    const rows = d3.select("#main")
-	  .selectAll("div")
+    // ************************************************ //
+    //              Layout for lr/kde graphs            //
+    // ************************************************ //
+
+    // Benchmark titles
+    const titles = main
+	  .selectAll(".mainTitle")
 	  .data(inputs.series)
 	  .enter()
 	  .append("div")
-	    .attr("id", (data, i) => "main-bechamel-"+i)
-   	    .attr("class", "row");
+	    .attr("id", (data, i) => "title-"+i)
+   	    .style("grid-row", (data,i) =>""+(4*i+3))
+      	    .style("grid-column", "1 / 3")
+  	    .attr("class","mainTitle")
+	  .append("text")
+  	    .attr("x", wsvg)
+  	    .attr("y", margin.top-10)
+            .text((data, i) => "#"+data.name);
 
-    rows.append("div")
-	.attr("class", "c1");
+    // Linear regression graph titles
+    const titles_lr = main
+	  .selectAll("#title_lr")
+	  .data(inputs.series)
+	  .enter()
+	  .append("div")
+            .attr("id",  "title_lr")
+   	    .style("grid-row", (data,i) =>""+(4*i+4))
+   	    .style("grid-column", "1")
+	  .append("text")
+  	    .attr("class","chartTitle")
+  	    .text("Linear regression");
 
-    rows.append("div")
-	.attr("class", "c2");
+    // Containers for linear regression graphs
+    const lr_graphs = main
+	  .selectAll(".lr")
+	  .data(inputs.series)
+	  .enter()
+	  .append("div")
+            .attr("class", "lr")
+	    .attr("id", (data, i) => "linearRegression-"+i)
+   	    .style("grid-row", (data,i) =>""+(4*i+5))
+   	  .style("grid-column", "1");
 
-    const left = rows.selectAll("div.c1");
-    const right = rows.selectAll("div.c2");
+    // Containers for linear regression info tables
+    const lr_info = main
+	  .selectAll(".lr-info")
+	  .data(inputs.series)
+	  .enter()
+	  .append("div")
+            .attr("class", "lr-info")
+	    .attr("id", (data, i) => "lr-info-"+i)
+   	    .style("grid-row", (data,i) =>""+(4*i+6))
+            .style("grid-column", "1");
+
+    // Containers for radio buttons to choose between histogram/kde plots
+    const radio_div = main
+	  .selectAll(".radio_div")
+	  .data(inputs.series)
+	  .enter()
+	  .append("div")
+            .attr("class",  "radio")
+	    .attr("id", (d, i) => "radio_div"+i)
+   	    .style("grid-row", (data,i) =>""+(4*i+4))
+   	    .style("grid-column", "2");
+
+    // Containers for kde/hist graph
+    const kde_graphs = main
+	  .selectAll(".kde")
+	  .data(inputs.series)
+	  .enter()
+	  .append("div")
+            .attr("class", "kde")
+	    .attr("id", (data, i) => "histKde-"+i)
+   	    .style("grid-row", (data,i) =>""+(4*i+5))
+   	    .style("grid-column", "2");
+
+
+    // Containers for kde/hist controlers
+    const kde_controler = main
+	  .selectAll(".kde-controler")
+	  .data(inputs.series)
+	  .enter()
+	  .append("div")
+            .attr("class", "kde-controler")
+	    .attr("id", (data, i) => "kde-controler-"+i)
+   	    .style("grid-row", (data,i) =>""+(4*i+6))
+            .style("grid-column", "2");
 
     // ************************************************ //
-    //                  Left Column                     //
+    //          Linear regression graph                 //
     // ************************************************ //
-    left.each( function(serie) {
+    lr_graphs.each( function(serie, i) {
 	//Curves for each input
 	const xMin = 0;
 	const xMax = d3.max(serie.dataset, d => d.x);
 	const yMin = 0;
 	const yMax = d3.max(serie.dataset, d => d.y);
+
+	// Define x axis
 	const xScale = d3.scaleLinear()
   	      .domain([xMin,xMax])
   	      .range([0,innerW])
   	      .nice();
+	const xAxis = d3.axisBottom()
+  	      .scale(xScale)
+  	      .ticks(8, "s");
+	// "s" = number format such as 1000 -> 1k
+
+	// Define y axis
 	const yScale = d3.scaleLinear()
   	      .domain([yMin,yMax])
   	      .range([innerH,0])
   	      .nice();
-	const xAxis = d3.axisBottom()
-  	      .scale(xScale)
-  	      .ticks(8, "s");
 	const yAxis = d3.axisLeft()
   	      .scale(yScale)
   	      .ticks(8, "s");
-	const center = d3.select(this)
-	      .append("div")
-	      .attr("class", "center")
-	      .attr("id", "bechamel");
-	let plotdiv = center
-  	    .append("div")
-	    .attr("id", "bechamel-"+serie.name);
-  	let plot =
-	    plotdiv
+
+	// Svg
+  	const plot = d3.select(this)
 	    .append("svg")
   	      .attr("width",wsvg)
   	      .attr("height",hsvg);
-	//background
+	// Color background
 	plot.append("rect")
   	    .attr("x",margin.left)
   	    .attr("y",margin.top)
   	    .attr("width",innerW)
   	    .attr("height",innerH)
   	    .attr("class","background axis");
-	//graph title
-	plot.append("text")
-  	    .attr("class","chartTitle")
-  	    .attr("x",wsvg/2)
-  	    .attr("y",margin.top-10)
-  	    .text("# " + serie.name);
-	//x axis
+	// Plot axis
 	plot.append("g")
-  	    .attr("transform","translate("+margin.left+","+(hsvg-margin.bottom)+")")
+  	    .attr("transform",
+	 	  "translate("+margin.left+","
+	 	  +(hsvg-margin.bottom)+")")
 	    .attr("class", "axis")
   	    .call(xAxis);
-	//x axis title
+	plot.append("g")
+  	    .attr("transform",
+	  	  "translate("+margin.left+","
+		  +margin.bottom+")")
+	    .attr("class", "axis")
+  	    .call(yAxis);
+	// Print axis titles
 	plot.append("text")
 	    .attr("class", "axisTitle")
 	    .attr("x", wsvg/2)
 	    .attr("y", hsvg-10)
 	    .text(inputs.xLabel);
-	//y axis
-	plot.append("g")
-  	    .attr("transform","translate("+margin.left+","+margin.bottom+")")
-	    .attr("class", "axis")
-  	    .call(yAxis);
-	//y axis title
 	plot.append("text")
 	    .attr("class", "axisTitle ytitle")
 	    .attr("transform-origin", 0, hsvg/2)
 	    .attr("x", 0)
 	    .attr("y", hsvg/2)
 	    .text(inputs.yLabel);
-	//data
+
+	// Plot data
 	plot.append("g")
-	    .attr("transform","translate("+margin.left+","+margin.top+")")
+	    .attr("transform",
+		  "translate("+margin.left+","
+		  +margin.top+")")
   	    .selectAll("circle")
   	    .data(serie.dataset)
   	    .enter()
@@ -381,43 +510,15 @@ function render(inputs) {
   	    .attr("cx", d => xScale(d.x))
   	    .attr("cy", d => yScale(d.y));
 
-	//Text boxes
+	// Plot linear regression line
+
 	const xVals = serie.dataset.map((e,j) => e.x);
 	const yVals = serie.dataset.map((e,j) => e.y);
-	const meanX = ss.mean(xVals).toFixed(0);
-	const meanY = ss.mean(yVals).toFixed(2);
-	const varX = ss.sampleVariance(xVals).toFixed(0);
-	const varY = ss.sampleVariance(yVals).toFixed(1);
-	const corCoeff = ss.sampleCorrelation(xVals,yVals).toFixed(3);
 	const pairs = [];
 	xVals.forEach((d,i) => pairs.push([xVals[i],yVals[i]]));
 	const linReg = ss.linearRegression(pairs);
 	const linRegLine = ss.linearRegressionLine(linReg);
-	let summary=[
-	    ["Mean of x", meanX],
-	    ["Mean of y", meanY],
-	    ["Sample variance of x", varX],
-	    ["Sample variance of y", varY],
-	    ["Correlation between x and y", corCoeff],
-	    ["Linear regression line", "y = "+linReg.b.toFixed(2)+" + "+linReg.m.toFixed(3)+"x"],
-	    ["Coefficient", serie.result.estimate],
-	    ["R²", serie.result.r_square]
-	];
-
-	plotdiv
-	    .append("table")
-	    .append("tbody")
-    	    .selectAll("tr")
-    	    .data(summary)
-    	    .enter()
-    	    .append("tr")
-	    .selectAll("td")
-	    .data(d => d)
-	    .enter()
-	    .append("td")
-	    .text(d => d);
-
-	let line = d3.select(this)
+	let line = plot
 	    .append("line")
     	      .attr("transform","translate("+margin.left+","+margin.top+")")
     	      .attr("class","regLine")
@@ -429,37 +530,102 @@ function render(inputs) {
     	      .attr("x2",xScale(xMax))
     	      .attr("y2",yScale(linRegLine(xMax)));
 
+	// Add text boxes
+	//const meanX = ss.mean(xVals).toFixed(0);
+	//const meanY = ss.mean(yVals).toFixed(2);
+	//const varX = ss.sampleVariance(xVals).toFixed(0);
+	//const varY = ss.sampleVariance(yVals).toFixed(1);
+	//const corCoeff = ss.sampleCorrelation(xVals,yVals).toFixed(3);
+
+	const lr_results = [
+	    ["Linear regression line", "y = "+linReg.b.toFixed(2)+" + "+linReg.m.toFixed(3)+"x"],
+	    ["Coefficient", serie.result.estimate],
+	    ["R²", serie.result.r_square]
+	];
+
+	const sampling_to_string = sampling =>
+              (Number.isInteger(sampling) ?  "`Linear "+sampling+"" : "`Geometric "+sampling+"");
+
+	const format = v  => d3.format("s")(v);
+
+	const param_benchmarks = [
+	    ["LR sampling (sampling)", sampling_to_string(serie.description.sampling)],
+	    ["Start (start)", serie.description.start],
+	    ["Benchmark runtime (time / quota)",
+	     format(serie.description.time) + " / " + format(serie.description.quota)],
+	    ["Number of runs (samples)", serie.description.samples + " / " + serie.description.run],
+	    ["Stabilized GC (stabilize)", serie.description.stabilize]
+	];
+
+	const table =
+	      d3.select("#lr-info-"+i)
+	      .append("table");
+
+	table.append("thead")
+	    .append("tr")
+	    .append("th")
+	    .attr("colspan", 2)
+	    .attr("scope", "col")
+	    .text("Linear regression results");
+
+	table.append("tbody")
+	    .selectAll("tr")
+	    .data(lr_results)
+	    .enter()
+	    .append("tr")
+	    .selectAll("td")
+	    .data(d => d)
+	    .enter()
+	    .append("td")
+	    .text(d=>d);
+
+	table.append("thead")
+	    .append("tr")
+	    .append("th")
+	    .attr("class", "tooltip")
+	    .attr("colspan", 2)
+	    .attr("scope", "col")
+	    .text("Benchmarks parameters")
+	    .append("span")
+	    .attr("class","tooltiptext")
+	    .text("See [Benchmarks.stats]");
+
+	table.append("tbody")
+	    .selectAll("tr")
+	    .data(param_benchmarks)
+	    .enter()
+	    .append("tr")
+	    .selectAll("td")
+	    .data(d => d)
+	    .enter()
+	    .append("td")
+	    .text(d=>d);
+
     });
 
     // ************************************************ //
-    //                  Right Column                    //
+    //         Histogram and kde graphs                 //
     // ************************************************ //
-    right.each(function (serie, i) {
+    kde_graphs.each(function (serie, i) {
 
 	const data = serie.kde;
 	//Some default values
-	const min_slider = (d3.max(data)-d3.min(data))/data.length*2;
-	const max_slider = (d3.max(data)-d3.min(data))/20;
+	const min_slider = (d3.max(data)-d3.min(data))/data.length;
+	const max_slider = (d3.max(data)-d3.min(data))/30;
 	let vslider = min_slider;
-	console.log(min_slider + ' '+ max_slider);
+
 	//Radio buttons
-	const radio_container =
-	    d3.select(this)
-	    .append("div")
-	    .attr("id","radio")
-	    .attr("class", "radio");
 	const form =
-	    radio_container
-	    .append("form");
+	    d3.select("#radio_div"+i)
+	      .append("form");
+
 	form.append("input")
 	    .attr("type", "radio")
 	    .attr("name", "graph")
 	    .attr("value", "hist"+i)
 	    .attr("name", "graph")
 	    .attr("checked", "checked")
-	    .on("change", f => {
-		plot_chosen_graph(d3.select(this), "hist");
-	    });
+	    .on("change", () => plot_chosen_graph(d3.select(this), "hist"));
 	form.append("label")
 	    .attr("for", "hist"+i)
 	    .text("Histogram");
@@ -467,9 +633,7 @@ function render(inputs) {
 	    .attr("type", "radio")
 	    .attr("value", "kde"+i)
 	    .attr("name", "graph")
-	    .on("change", f => {
-		plot_chosen_graph(d3.select(this), "kde");
-	    });
+	    .on("change", () => plot_chosen_graph(d3.select(this), "kde"));
 	form.append("label")
 	    .attr("for", "kde"+i)
 	    .text("KDE");
@@ -482,7 +646,7 @@ function render(inputs) {
 		  .attr("width", wsvg)
 		  .attr("height", hsvg)
 		.append("g")
-	    .attr("transform", "translate("+margin.left+","+(margin.top-25)+")");
+	    .attr("transform", "translate("+margin.left+","+margin.top+")");
 
 	//axis
 	const min = d3.min(data),
@@ -561,15 +725,16 @@ function render(inputs) {
 	    let path =
 		container.select(".mypath").remove();
 
-	    // Erasing control and info panels if it exists and initialising it
-	    let control = container.select("#control");
-	    if (!control.empty())  {
-		control.remove();
+	    // Erasing control panels if it exists and initializing it
+	    const control_container = d3.select("#kde-controler-"+i);
+	    const slider = control_container.select("#slider-"+i);
+	    const slidertitle = control_container.select("#slidertitle-"+i);
+	    if (!slider.empty())  {
+		slider.remove();
 	    }
-	    control =
-		container
-		.append("div")
-		.attr("id", "control");
+	    if (!slidertitle.empty())  {
+		slidertitle.remove();
+	    }
 
 	    //Hist part
 	    if (choice=="hist") {
@@ -584,13 +749,17 @@ function render(inputs) {
 		const update_hist = plot_histogram(pdfgraph, data, barwidth, xscale, yscale);
 
 		//slider
-		control.insert("p")
+		control_container
+		    .insert("p")
 		    .attr("align", "center")
+		    .attr("id", "slidertitle-"+i)
 		    .text("Barwidth");
 
-		control.insert("svg")
+		control_container
+		    .insert("svg")
 		    .attr("width", wsvg)
 		    .attr("height", hslider)
+		    .attr("id", "slider-"+i)
 		    .append("g")
 		    .attr("transform", "translate("+(wsvg-wslider)/2+",10)")
 		    .call(d3
@@ -601,7 +770,7 @@ function render(inputs) {
 			  .ticks(5, "s")
 			  .default(vslider)
 			  .fill("red")
-			  .on("onchange", value => {
+			  .on("onchange", (value) => {
 			      if (value > 0) {
 				  vslider=value;
 				  update_hist(vslider);}}));
@@ -617,13 +786,15 @@ function render(inputs) {
 		const update_kde = plot_kde(pdfgraph, data, bandwidth, xscale, yscale, x);
 
 		//slider
-		control.insert("p")
+		control_container.insert("p")
 		    .attr("align", "center")
+		    .attr("id", "slidertitle-"+i)
 		    .text("Bandwidth");
 
-		control.insert("svg")
+		control_container.insert("svg")
 		    .attr("width", wsvg)
 		    .attr("height", hslider)
+		    .attr("id", "slider-"+i)
 		    .append("g")
 		    .attr("transform", "translate("+(wsvg-wslider)/2+",10)")
 		    .call(d3
@@ -634,7 +805,7 @@ function render(inputs) {
 			  .ticks(5, "s")
 			  .default(vslider)
 			  .fill("red")
-			  .on("onchange", value => {
+			  .on("onchange", (value) => {
 			      if (value > 0) {
 				  vslider=value;
 				  update_kde(vslider);}}));

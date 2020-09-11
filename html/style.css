@@ -1,3 +1,9 @@
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
 body{
     width: 100%;
     height: 100%;
@@ -12,6 +18,10 @@ body{
 
 text{
     font-family: metric,sans-serif;
+}
+
+.ml {
+    text-align: left
 }
 
 svg {
@@ -34,7 +44,7 @@ svg {
     stroke: #292F36;
 }
 
-.axisTitle, .chartTitle {
+.axisTitle, .chartTitle{
     text-anchor: middle
 }
 
@@ -46,7 +56,8 @@ svg {
 .regLine {
     stroke: #F06449;
     stroke-width:2px;
-    opacity:0.7 }
+    opacity:0.7
+}
 
 .circle {
     fill: #4ECDC4;
@@ -55,73 +66,81 @@ svg {
 }
 
 table {
+    margin:auto;
+    text-align:left;
+    border-spacing: 15px 5px;
     border: 1px solid #292F36
 }
+
+
+th {
+    text-align: center;
+    color:#F06449
+}
+
 
 tr {
     fill: #292f36;
     font-size:10px
 }
 
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: auto;
+  background-color: #F06449;
+  color: #FFFFFF;
+  text-align: center;
+  border-radius: 10px;
+  padding: 0 5px 0 5px;
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
 .bar {
     fill: #4ECDC4;
     stroke:#292f36;
 }
-
-.flex {
-    display: flex;
-}
-
-.slidecontainer{
-    width: 50%;
-}
-
-/* The slider itself */
-.slider {
-  -moz-appearance: none;  /* Override default CSS styles */
-  appearance: none;
-  width: 100%; /* Full-width */
-  height: 15px;
-  border-radius: 5px;
-  background: #F3F5F6; /* Grey background */
-  outline: none; /* Remove outline */
-  opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
-  -moz-transition: .2s; /* 0.2 seconds transition on hover */
-  transition: opacity .2s;
-}
-
-/* Mouse-over effects */
-.slider:hover {
-  opacity: 1; /* Fully shown on mouse-over */
-}
-
-/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
-.slider::-moz-slider-thumb {
-  -moz-appearance: none; /* Override default look */
-  appearance: none;
-  width: 25px; /* Set a specific slider handle width */
-  height: 25px; /* Slider handle height */
-  background: #4CAF50; /* Green background */
-  cursor: pointer; /* Cursor on hover */
-}
-
-.slider::-moz-range-thumb {
-  width: 25px; /* Set a specific slider handle width */
-  height: 25px; /* Slider handle height */
-  background: #4CAF50; /* Green background */
-  cursor: pointer; /* Cursor on hover */
-}
-
-.row {
-    display: flex;
-}
-
-
-.column, .c1, .c2 {
-    margin: auto;
+.bar:hover {
+    fill: #F06449;
+    stroke:#292f36;
+    stroke-width:1px;
 }
 
 .radio {
     margin: auto;
     width : 200px;
+}
+
+.wrapper {
+    display: grid;
+    margin: 50px 50px 50px 50px;
+    grid-template-columns: repeat(2, 500px);
+    gap: 10px 20px;
+    grid-auto-rows: minmax(20px, auto);
+    text-align: center;
+    place-items: center;
+}
+
+.mainTitle, .summarizeTitle {
+    height:30px;
+    width: auto;
+    border-radius: 2px;
+    padding: 0 45px 0 45px;
+    border-style: solid;
+    border-width:1px;
+    box-shadow: 2px 2px 1px rgba(0,0,0,0.1);
+    color:  #292f36;
+    background: #F3F5F6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+}
+
+.slidecontainer{
+    width: 50%;
 }
