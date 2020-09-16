@@ -30,18 +30,18 @@ svg {
 }
 
 .axis line, .axis path{
-    stroke: #292F36;
+    stroke: #2E3532;
     stroke-width:1px;
 }
 
 .axisTitle, .axis text{
-    fill: #292F36;
+    fill: #2E3532;
     font-size:12px;
 }
 
 .background {
-    fill: #F3F5F6;
-    stroke: #292F36;
+    fill: #FBFBFB;
+    stroke: #2E3532;
 }
 
 .axisTitle, .chartTitle{
@@ -52,6 +52,11 @@ svg {
 .ytitle {
     text-anchor: middle;
     transform: rotate(90deg)
+}
+
+.warningtext{
+    text-anchor: center;
+    fill: #F06449;
 }
 
 .regLine {
@@ -66,16 +71,11 @@ svg {
     stroke-width:0.3px
 }
 
-.warningtext{
-    text-anchor: middle;
-    color: #F06449;
-}
-
 table {
     margin:auto;
     text-align:left;
     border-spacing: 15px 5px;
-    border: 1px solid #292F36
+    border: 1px solid #2E3532
 }
 
 th {
@@ -85,7 +85,7 @@ th {
 
 
 tr {
-    fill: #292f36;
+    fill: #2E3532;
     font-size:10px
 }
 
@@ -137,8 +137,8 @@ tr {
     border-style: solid;
     border-width:1px;
     box-shadow: 2px 2px 1px rgba(0,0,0,0.1);
-    color:  #292f36;
-    background: #F3F5F6;
+    color:  #2E3532;
+    background: #FBFBFB;
     display: flex;
     align-items: center;
     justify-content: center;

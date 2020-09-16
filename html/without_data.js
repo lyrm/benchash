@@ -400,9 +400,9 @@ function render(inputs) {
 	    // is written in the svg window.
 	    if (!('kde' in serie)) {
 		pdfgraph.append("text")
-		    .attr("x", wsvg/2)
-		    .attr("y", hsvg/2)
-		    .attr("class", "warningtext")
+		    .attr("x", (margin.left+margin.right+wsvg)/2)
+		    .attr("y", (margin.top+margin.bottom+hsvg)/2)
+		    .attr("class", "warning")
 		    .text("No available data");
 	    } else if (d3.max(serie.kde) == d3.min(serie.kde)) {
 		pdfgraph.append("text")
