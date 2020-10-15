@@ -22,8 +22,8 @@ let benchmark tested instances =
     Analyze.ols ~bootstrap:0 ~r_square:true ~predictors:Measure.[| run |]
   in
   let cfg =
-    Benchmark.cfg ~start:1 ~sampling:(`Linear 10) ~run:200
-      ~quota:(Time.second 30.) ~kde:true ()
+    Benchmark.cfg ~start:1 ~sampling:(`Linear 10) ~limit:200
+      ~quota:(Time.second 30.) ~kde:(Some 200) ()
   in
   let raw_results = Benchmark.all cfg instances tested in
   let results =
