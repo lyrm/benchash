@@ -3,7 +3,7 @@ Benchmarks to compare `digestif` and `mirage-crypto` hash functions using `becha
 
 # How to launch
 ## Script
-`./script` launches some benchmarks for examples. You can either changes the parameters of the benchmarks directly in the script file or launch it manually. 
+`./script` launches some benchmarks for example. You can either change the parameters of the benchmarks directly in the script file or launch it manually. 
 
 ## `bench.exe` parameters
 ### Command line 
